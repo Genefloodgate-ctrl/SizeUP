@@ -48,21 +48,6 @@
   }
 
   /* ---------- atmosphere ---------- */
-  .filaments{
-    position:fixed;inset:0;width:100%;height:100%;
-    z-index:0;pointer-events:none;opacity:0;
-    animation:atmos 2.6s var(--ease) .35s forwards;
-  }
-  .filaments path{fill:none;stroke:var(--mint-deep);stroke-width:.9;vector-effect:non-scaling-stroke}
-  .filaments .lit{
-    stroke:var(--mint);stroke-width:1.4;
-    stroke-dasharray:180 1400;
-    filter:drop-shadow(0 0 6px rgba(143,230,206,.9));
-    animation:travel 18s linear infinite;
-  }
-  .filaments .lit.b{animation-duration:24s;animation-delay:-9s}
-  @keyframes travel{from{stroke-dashoffset:1580}to{stroke-dashoffset:0}}
-  @keyframes atmos{to{opacity:.55}}
 
   .halo{
     position:fixed;left:50%;top:42%;
@@ -80,6 +65,42 @@
   @keyframes halo-in{to{opacity:1}}
   @keyframes breathe{0%,100%{opacity:1}50%{opacity:.72}}
 
+  /* ---------- neon backdrop ---------- */
+  /* The brand mark traced to one vector contour (843 chars) instead of a
+     bitmap: scales to any viewport for a fraction of a kilobyte. The static
+     stroke and its bloom rasterise once; only opacity animates, which the
+     compositor handles, so this replaces two repainting filament paths with
+     one that never repaints. */
+  .ghost{
+    position:fixed;z-index:0;pointer-events:none;
+    right:-28vw;bottom:-54vh;
+    width:min(1280px,100vw);
+    transform:rotate(48deg);
+    opacity:0;
+    animation:ghost-in 2.2s var(--ease) .4s forwards;
+  }
+  .ghost path{fill:none;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round}
+  .ghost .edge{
+    stroke:var(--mint-deep);stroke-width:1.1;opacity:.55;
+  }
+  /* The neon core. Only its opacity animates, which the compositor handles on
+     the GPU: the stroke and its bloom rasterise once and are never repainted. */
+  .ghost .lit{
+    stroke:var(--mint);stroke-width:1.5;
+    opacity:.34;
+    filter:drop-shadow(0 0 6px rgba(143,230,206,.9))
+           drop-shadow(0 0 20px rgba(143,230,206,.5))
+           drop-shadow(0 0 52px rgba(143,230,206,.22));
+    animation:pulse 9s ease-in-out 2.4s infinite;
+    will-change:opacity;
+  }
+  @keyframes pulse{0%,100%{opacity:.34}50%{opacity:.72}}
+  @keyframes ghost-in{to{opacity:1}}
+
+  @media (max-width:760px){
+    .ghost{right:-46vw;bottom:-30vh;width:172vw;transform:rotate(44deg)}
+  }
+
   .vignette{
     position:fixed;inset:0;z-index:1;pointer-events:none;
     background:radial-gradient(120% 85% at 50% 44%, transparent 38%, rgba(0,0,0,.85) 92%);
@@ -95,7 +116,7 @@
 
   .corner{position:fixed;z-index:3;width:26px;height:26px;opacity:0;
     border-color:rgba(143,230,206,.28);border-style:solid;border-width:0;
-    animation:corner-in 1.4s var(--ease) 1.5s forwards}
+    animation:corner-in 1.2s var(--ease) .9s forwards}
   .c1{top:26px;left:26px;border-top-width:1px;border-left-width:1px}
   .c2{top:26px;right:26px;border-top-width:1px;border-right-width:1px}
   .c3{bottom:26px;left:26px;border-bottom-width:1px;border-left-width:1px}
@@ -114,7 +135,7 @@
     width:clamp(220px,55vw,440px);height:auto;display:block;
     filter:drop-shadow(0 0 34px rgba(143,230,206,.32))
            drop-shadow(0 0 90px rgba(143,230,206,.16));
-    animation:lift 1.8s var(--ease) .15s both, float 11s ease-in-out 2s infinite;
+    animation:lift 1.4s var(--ease) .1s both, float 11s ease-in-out 1.6s infinite;
   }
   @keyframes lift{from{opacity:0;transform:translateY(64px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
@@ -124,7 +145,7 @@
     margin:clamp(34px,6vh,64px) 0 0;
     background:linear-gradient(to bottom,transparent,rgba(143,230,206,.45),transparent);
     transform-origin:top;
-    animation:stem 1.4s var(--ease) 1.15s both;
+    animation:stem 1.1s var(--ease) .6s both;
   }
   @keyframes stem{from{opacity:0;transform:scaleY(0)}to{opacity:1;transform:scaleY(1)}}
 
@@ -132,7 +153,7 @@
     margin:clamp(30px,5vh,54px) 0 0;
     display:flex;align-items:stretch;
     width:min(360px,80vw);
-    animation:fade 1.3s var(--ease) 1.45s both;
+    animation:fade 1s var(--ease) .8s both;
   }
   @keyframes fade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 
@@ -185,7 +206,7 @@
   .links{
     display:flex;gap:12px;
     margin:clamp(30px,5vh,52px) 0 0;
-    animation:fade 1.3s var(--ease) 1.7s both;
+    animation:fade 1s var(--ease) .95s both;
   }
   .chip{
     width:46px;height:46px;display:grid;place-items:center;
@@ -288,11 +309,12 @@
     .stem{height:5vh;margin-top:2.4vh}
     form,.listed{margin-top:2.6vh}
     .links{margin-top:2.4vh}
+    .ghost{right:-40vw;bottom:-95vh;width:min(1250px,124vw);transform:rotate(52deg)}
   }
 
   @media (prefers-reduced-motion:reduce){
     *{animation:none!important;transition:none!important}
-    .filaments{opacity:.5}.halo{opacity:1}.corner{opacity:1}
+    .halo{opacity:1}.corner{opacity:1}.ghost{opacity:1}.ghost .lit{opacity:.5}
     .ring svg{stroke-dashoffset:0}
     .scrim.open .modal{transform:none}
   }
@@ -302,11 +324,9 @@
 
 <div class="halo"></div>
 
-<svg class="filaments" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-  <path id="f1" d="M-80 250 C 220 120, 420 190, 330 300 C 250 395, 60 330, 120 470 C 175 600, 420 560, 520 700"/>
-  <path id="f2" d="M1080 700 C 800 830, 640 760, 720 655 C 795 560, 985 620, 930 490 C 880 370, 640 400, 540 270"/>
-  <use class="lit" href="#f1"/>
-  <use class="lit b" href="#f2"/>
+<svg class="ghost" viewBox="0 0 969 743" aria-hidden="true" focusable="false">
+  <path class="edge" pathLength="1000" d="M30.9 709.6C161.3 560 312.1 460.4 442.7 437.6C533.1 421.8 605.3 451.5 583.6 495.5C574.9 513 553.6 529.2 507.1 553.6C497.8 558.5 490.3 562.6 490.4 562.7C490.5 562.9 498.6 561.2 508.3 559C688.6 518.1 814.5 563.3 944 715.5C949.6 722.1 954.7 728 955.3 728.5C962.5 735.5 909.3 646.6 882.5 606.9C801.4 487.1 714.6 411.4 612.7 371.5C558.6 350.4 520.7 343.3 441.4 339.5C390 337.1 376.5 334.3 370.2 325C356.3 304.3 409.8 267.4 468 257.6C532.9 246.7 582.7 259.3 655 305C678.6 319.9 702 334 703.2 334C704.1 334 693.5 318.1 665.5 277.5C657.1 265.4 622.4 215 588.3 165.5C554.2 116 520.3 67 513.1 56.5C505.8 46 495.9 31.8 491.2 24.8C486.4 17.8 482.3 12 482 12C481.7 12 469.8 29.7 455.6 51.3C424.4 98.4 397.7 138.5 343.9 219C321.7 252.3 292.6 296 279.3 316.2C266 336.3 237.8 378.8 216.7 410.7C112.9 567.1 -2.3 748.6 16.2 726.6C18 724.4 24.6 716.7 30.9 709.6Z"/>
+  <path class="lit" pathLength="1000" d="M30.9 709.6C161.3 560 312.1 460.4 442.7 437.6C533.1 421.8 605.3 451.5 583.6 495.5C574.9 513 553.6 529.2 507.1 553.6C497.8 558.5 490.3 562.6 490.4 562.7C490.5 562.9 498.6 561.2 508.3 559C688.6 518.1 814.5 563.3 944 715.5C949.6 722.1 954.7 728 955.3 728.5C962.5 735.5 909.3 646.6 882.5 606.9C801.4 487.1 714.6 411.4 612.7 371.5C558.6 350.4 520.7 343.3 441.4 339.5C390 337.1 376.5 334.3 370.2 325C356.3 304.3 409.8 267.4 468 257.6C532.9 246.7 582.7 259.3 655 305C678.6 319.9 702 334 703.2 334C704.1 334 693.5 318.1 665.5 277.5C657.1 265.4 622.4 215 588.3 165.5C554.2 116 520.3 67 513.1 56.5C505.8 46 495.9 31.8 491.2 24.8C486.4 17.8 482.3 12 482 12C481.7 12 469.8 29.7 455.6 51.3C424.4 98.4 397.7 138.5 343.9 219C321.7 252.3 292.6 296 279.3 316.2C266 336.3 237.8 378.8 216.7 410.7C112.9 567.1 -2.3 748.6 16.2 726.6C18 724.4 24.6 716.7 30.9 709.6Z"/>
 </svg>
 
 <div class="vignette"></div>
