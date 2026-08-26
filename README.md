@@ -51,6 +51,13 @@ Settings → Pages → Source: **Deploy from a branch** → `main`, folder `/doc
 Serves at `https://genefloodgate-ctrl.github.io/SizeUP/` with no Actions run
 required. `docs/.nojekyll` keeps Jekyll from touching the files.
 
+## www
+
+Workers' `_redirects` only accepts relative URLs, so the www-to-apex redirect
+cannot live in this repo. Add it as a zone-level Redirect Rule instead:
+Cloudflare dashboard, Rules -> Redirect Rules -> hostname equals
+`www.sizeup.fun` -> dynamic redirect to `concat("https://sizeup.fun", http.request.uri.path)`, 301.
+
 ## Images
 
 The logo is white artwork whose shape lives entirely in the alpha channel, so
