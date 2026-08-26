@@ -1,14 +1,13 @@
 # SizeUP
 
-Static landing page for SizeUP, served from `docs/`.
+Static landing page for SizeUP. Target domain: **sizeup.fun**.
 
 ## Layout
 
-- `docs/` — everything published to the web. `docs/index.html` is the landing
-  page: fully self-contained, with inline CSS/JS and base64 images. No build step.
-- `docs/.nojekyll` — tells Pages to serve the files as-is, without Jekyll.
-- `.github/workflows/deploy.yml` — optional. Publishes `docs/` to Pages on every
-  push to `main`, for when Actions is available.
+- `docs/` — everything published. `docs/index.html` is the whole site: inline
+  CSS/JS, base64 images, no build step, no dependencies.
+- `wrangler.jsonc` — Cloudflare Workers static-assets config (primary host).
+- `.github/workflows/deploy.yml` — GitHub Pages fallback, if Actions is ever needed.
 
 ## Local preview
 
@@ -17,33 +16,50 @@ python3 -m http.server 8000 --directory docs
 # http://localhost:8000
 ```
 
-## Deploying
+## Deploying to Cloudflare (primary)
 
-Two routes, both landing at `https://genefloodgate-ctrl.github.io/SizeUP/`.
-Pick one — the repo is laid out so either works unchanged.
+```bash
+npx wrangler login     # one-time, opens a browser
+npx wrangler deploy
+```
 
-### Branch source (no Actions required)
+That publishes to `sizeup.<your-subdomain>.workers.dev`.
 
-**Settings → Pages → Build and deployment → Source: Deploy from a branch →
-Branch: `main`, folder: `/docs` → Save.**
+### Attaching sizeup.fun
 
-Pages builds it directly. Nothing to run, no Actions minutes consumed. Every
-later push to `main` republishes automatically.
+1. Register **sizeup.fun** and add the zone to Cloudflare (either register it
+   through Cloudflare Registrar, or register elsewhere and point the registrar's
+   nameservers at the two Cloudflare gives you).
+2. Add the routes to `wrangler.jsonc`:
 
-### GitHub Actions source
+   ```jsonc
+   "routes": [
+     { "pattern": "sizeup.fun", "custom_domain": true },
+     { "pattern": "www.sizeup.fun", "custom_domain": true }
+   ]
+   ```
 
-**Settings → Pages → Build and deployment → Source: GitHub Actions.**
+3. `npx wrangler deploy`. Cloudflare creates the DNS records and issues the TLS
+   certificate itself — there are no records to copy by hand.
 
-Uses `.github/workflows/deploy.yml`. Requires Actions to be enabled and able to
-schedule runs on this account.
+Deploying from CI instead of a laptop needs a `CLOUDFLARE_API_TOKEN` with the
+*Edit Cloudflare Workers* template, set as a secret rather than committed.
 
-## Custom domain
+## GitHub Pages (fallback)
 
-Add `docs/CNAME` containing the bare domain (e.g. `sizeup.xyz`), point the
-domain's DNS at GitHub Pages, then set the domain under Settings → Pages. Also
-update the `og:url` meta tag in `docs/index.html` to match.
+Settings → Pages → Source: **Deploy from a branch** → `main`, folder `/docs`.
+Serves at `https://genefloodgate-ctrl.github.io/SizeUP/` with no Actions run
+required. `docs/.nojekyll` keeps Jekyll from touching the files.
+
+## Images
+
+The logo is white artwork whose shape lives entirely in the alpha channel, so
+both images are encoded as palette PNGs where the palette index *is* the alpha
+level and every palette entry is white. Lossless, and about half the bytes of a
+plain RGBA PNG. If you re-export the logo, re-run that encoding rather than
+pasting a raw RGBA export back in.
 
 ## Email signups
 
 The form posts to Formspree (`https://formspree.io/f/xgaewwnd`). Submissions land
-in the inbox attached to that Formspree form — no backend in this repo.
+in the inbox attached to that form — there is no backend in this repo.
