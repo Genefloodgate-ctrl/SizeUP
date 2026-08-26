@@ -69,6 +69,13 @@
   @keyframes halo-in{to{opacity:1}}
   @keyframes breathe{0%,100%{opacity:1}50%{opacity:.72}}
 
+  .build{
+    position:fixed;left:50%;bottom:10px;transform:translateX(-50%);
+    z-index:9;pointer-events:none;
+    font-size:9px;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--dim);opacity:.55;
+  }
+
   /* ---------- neon backdrop ---------- */
   /* The supplied artwork, traced to vector centrelines: ~2KB of path data
      instead of a 3MB pair of PNGs, and sharp at any density. Each curve is
@@ -87,21 +94,23 @@
   .bg .soft{stroke:var(--line);stroke-width:7;opacity:.06}
   .bg .base{stroke:var(--line);stroke-width:1.1;opacity:.3}
 
-  /* The light is a gradient sliding along the stroke, not a dash. A dash has
-     ends, which is what read as sharp however much it was tapered; a gradient
-     has none - it swells and fades. spreadMethod="repeat" plus a translate of
-     exactly one period makes the loop seamless, and the soft falloff removes
-     the need for any bloom filter. A slow breathe on top keeps it pulsing
-     rather than merely sliding. */
-  .bg .flowWide{stroke:url(#fd);stroke-width:11;animation:breathe-wide 7s ease-in-out infinite}
-  .bg .flow{stroke:url(#fd);stroke-width:3;animation:breathe 7s ease-in-out infinite}
-  .bg-m .flowWide,.bg-m .flow{stroke:url(#fm)}
-  @keyframes breathe{0%,100%{opacity:.6}50%{opacity:1}}
-  @keyframes breathe-wide{0%,100%{opacity:.28}50%{opacity:.58}}
+  /* The light is six nested dashes sharing one 500-unit period, each shorter,
+     thinner and brighter than the last. Stacking them ramps the trailing edge
+     smoothly instead of ending at a hard cap. Driven by stroke-dashoffset in
+     CSS, which every engine supports - a SMIL-animated gradientTransform
+     renders in Chromium but silently does nothing in Safari. */
+  .bg .c1,.bg .c2,.bg .c3,.bg .c4,.bg .c5,.bg .c6{animation:run 5s linear infinite}
+  .bg .c1{stroke:var(--line);stroke-width:9;opacity:.07;stroke-dasharray:320 180}
+  .bg .c2{stroke:var(--line);stroke-width:6.5;opacity:.10;stroke-dasharray:250 250}
+  .bg .c3{stroke:var(--line-2);stroke-width:4.5;opacity:.15;stroke-dasharray:190 310}
+  .bg .c4{stroke:var(--line-2);stroke-width:3;opacity:.22;stroke-dasharray:135 365}
+  .bg .c5{stroke:var(--line-hot);stroke-width:2.2;opacity:.34;stroke-dasharray:85 415}
+  .bg .c6{stroke:#B4F2D8;stroke-width:1.6;opacity:.58;stroke-dasharray:45 455}
+  @keyframes run{from{stroke-dashoffset:500}to{stroke-dashoffset:0}}
   @keyframes bg-in{to{opacity:1}}
 
   @media (prefers-reduced-motion:reduce){
-    .bg .flowWide,.bg .flow{display:none}
+    .bg .c1,.bg .c2,.bg .c3,.bg .c4,.bg .c5,.bg .c6{animation:none;stroke-dasharray:none;opacity:.06}
   }
 
   .bg-m{display:none}
@@ -339,18 +348,6 @@
   <defs>
     <path id="d0" d="M906.7 935.4C912.7 928.2 918.9 920.5 925.1 913.2C931.3 905.8 937.5 898.6 943.9 891.2C950.4 883.7 957.1 876.2 963.8 868.7C970.5 861.2 977.2 853.9 984 846.4C991 838.8 998.1 831.2 1005.3 823.5C1012.7 815.7 1020.1 807.9 1027.7 800C1035.6 791.8 1043.6 783.4 1051.8 775C1060.3 766.2 1068.9 757.4 1077.7 748.4C1087 738.9 1097.1 728.5 1106.1 719.4C1114.2 711.2 1121.4 703.8 1128.9 696.3C1136.1 689.1 1143.3 682 1150.3 675.2C1157.1 668.6 1163.7 662.3 1170.4 656.1C1177 650 1183.5 644 1190.1 638.2C1196.7 632.3 1203.3 626.6 1210.2 620.7C1217.4 614.6 1225 608.4 1232.5 602.3C1240 596.2 1247.4 590.3 1255.2 584.2C1263.2 577.9 1271.5 571.5 1279.9 565C1288.6 558.3 1297.8 551.3 1306.6 544.6C1315.3 538.1 1323.9 531.6 1332.6 525.2C1341.3 518.7 1350.1 512.3 1358.7 506C1367.2 499.8 1375.6 493.8 1384.1 487.7C1392.6 481.7 1401.2 475.6 1409.7 469.7C1418 464 1426.2 458.3 1434.5 452.7C1442.8 447.1 1451.2 441.5 1459.6 436C1468 430.5 1476.3 425.1 1484.9 419.6C1493.9 413.9 1502.9 408.2 1512.4 402.3C1522.6 395.9 1533.9 388.9 1543.9 382.6C1552.8 376.9 1561 371.7 1569.1 366.4C1576.8 361.5 1584.2 356.6 1591.1 351.8C1597.2 347.5 1602.8 343.4 1608 339.2C1612.7 335.4 1617.2 331.7 1620.7 327.6C1623.9 324 1626.7 320.1 1628.4 316.3C1629.8 312.9 1630.3 309.3 1629.9 305.9C1629.5 302.3 1627.7 298.2 1625.7 295C1623.7 292 1621 289.5 1617.7 287.3C1613.8 284.7 1609.3 282.6 1604.2 280.7C1598.3 278.4 1591.6 276.5 1584.9 274.6C1577.9 272.7 1570.5 270.8 1563.3 269.2C1556.1 267.6 1549.1 266.2 1541.7 264.9C1533.9 263.5 1525.9 262.3 1517.8 261.2C1509.5 260.1 1501.1 259.1 1492.6 258.2C1483.9 257.3 1475 256.5 1466.1 255.8C1457.3 255.2 1448.5 254.6 1439.5 254.1C1430.4 253.7 1421 253.3 1411.7 253C1402.4 252.8 1393.2 252.6 1383.8 252.5C1374.2 252.4 1364.7 252.5 1354.7 252.5C1344.2 252.6 1333.7 252.8 1322.3 253C1309.9 253.1 1296.2 253.4 1283.4 253.6C1270.8 253.8 1257 254.2 1245.9 254.2C1238 254.2 1232.3 254.4 1226.3 253.6C1221.3 253 1216.8 251.9 1212.9 250.2C1209.5 248.6 1206.1 246.4 1204.6 243.8C1203.2 241.5 1203 238.1 1204 235.4C1205.2 232.1 1208.2 228.9 1211.2 226C1214.6 222.7 1218.8 219.6 1223.2 216.6C1227.9 213.4 1232.9 210.7 1238.8 207.6C1245.7 204 1253.7 200.3 1261.6 196.6C1270.1 192.6 1279 188.5 1287.8 184.6C1296.6 180.7 1305.5 176.8 1314.3 173.1C1323 169.4 1331.4 166 1340.1 162.5C1349 158.9 1358 155.3 1367.1 151.8C1376.4 148.2 1385.9 144.6 1395.3 141.2C1404.8 137.7 1413.7 134.5 1423.6 131C1434.4 127.2 1446 123.2 1457.4 119.2C1469 115.2 1481 111.1 1492.5 107C1503.7 103.1 1515.1 99 1525.5 95.4C1534.8 92.1 1543.3 89.2 1551.8 86.5C1559.6 84 1566.9 81.7 1574.3 79.7C1581.3 77.7 1588.3 76.2 1595.1 74.5"/>
     <path id="d1" d="M319.3 935.5C316.7 931.9 314 928.2 311.3 924.6C308.6 921 305.8 917.4 303 913.8C300.2 910.3 297.4 906.8 294.6 903.3C291.7 899.8 288.8 896.3 285.8 892.9C282.9 889.5 279.9 886.1 276.9 882.7C273.9 879.3 270.7 875.8 267.6 872.5C264.5 869.2 261.4 865.9 258.2 862.7C255 859.4 251.7 856.1 248.5 852.8C245.2 849.6 241.8 846.3 238.5 843.2C235.2 840 231.9 837 228.5 833.9C225.1 830.8 221.7 827.7 218.2 824.7C214.6 821.6 211 818.5 207.4 815.5C203.9 812.5 200.3 809.6 196.7 806.7C193.1 803.7 189.4 800.9 185.8 798C182.1 795.2 178.4 792.4 174.7 789.6C170.9 786.8 167.1 784 163.3 781.3C159.5 778.6 155.7 776 151.9 773.4C148 770.7 144 768.1 140.1 765.5C136.2 762.9 132.2 760.4 128.2 757.9C124.3 755.4 120.4 753 116.4 750.6C112.4 748.2 108.3 745.8 104.2 743.5C100.1 741.1 96 738.8 91.9 736.5C87.8 734.3 83.6 732.1 79.5 729.9C75.4 727.7 71.3 725.7 67.2 723.6C63 721.5 58.8 719.5 54.5 717.4C50.3 715.4 46.1 713.5 41.8 711.6C37.5 709.6 33.3 707.8 29 705.9C24.7 704.1 20.3 702.3 16.1 700.6C11.8 698.8 7.4 697.2 3.3 695.6"/>
-    <linearGradient id="fd" gradientUnits="userSpaceOnUse" x1="0" y1="620" x2="620" y2="0" spreadMethod="repeat">
-      <stop offset="0" stop-color="#4E8F79" stop-opacity="0"/>
-      <stop offset=".18" stop-color="#4E8F79" stop-opacity="0"/>
-      <stop offset=".30" stop-color="#5EA98D" stop-opacity=".3"/>
-      <stop offset=".42" stop-color="#8FE0BE" stop-opacity=".72"/>
-      <stop offset=".5" stop-color="#B4F2D8" stop-opacity="1"/>
-      <stop offset=".58" stop-color="#8FE0BE" stop-opacity=".72"/>
-      <stop offset=".70" stop-color="#5EA98D" stop-opacity=".3"/>
-      <stop offset=".82" stop-color="#4E8F79" stop-opacity="0"/>
-      <stop offset="1" stop-color="#4E8F79" stop-opacity="0"/>
-      <animateTransform attributeName="gradientTransform" type="translate" from="0 0" to="620 -620" dur="7s" repeatCount="indefinite"/>
-    </linearGradient>
   </defs>
   <use class="haze" href="#d0"/>
   <use class="haze" href="#d1"/>
@@ -358,27 +355,24 @@
   <use class="soft" href="#d1"/>
   <use class="base" href="#d0"/>
   <use class="base" href="#d1"/>
-  <use class="flowWide" href="#d0"/>
-  <use class="flowWide" href="#d1"/>
-  <use class="flow" href="#d0"/>
-  <use class="flow" href="#d1"/>
+
+  <use class="c1" href="#d0"/>
+  <use class="c1" href="#d1"/>
+  <use class="c2" href="#d0"/>
+  <use class="c2" href="#d1"/>
+  <use class="c3" href="#d0"/>
+  <use class="c3" href="#d1"/>
+  <use class="c4" href="#d0"/>
+  <use class="c4" href="#d1"/>
+  <use class="c5" href="#d0"/>
+  <use class="c5" href="#d1"/>
+  <use class="c6" href="#d0"/>
+  <use class="c6" href="#d1"/>
 </svg>
 <svg class="bg bg-m" viewBox="0 0 853 1844" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
   <defs>
     <path id="m0" d="M848.5 405.5C841.7 401.4 834.5 396.8 827.3 392.7C820 388.6 812.6 384.6 805 380.8C797.3 377 789.5 373.3 781.6 369.8C773.6 366.2 765.5 362.8 757.2 359.5C748.8 356.2 740.1 353 731.5 349.9C722.7 346.8 713.9 343.9 704.9 341.1C695.7 338.2 686.3 335.4 676.7 332.6C666.8 329.8 657 327.2 646.5 324.4C635.2 321.5 623.1 318.5 611.3 315.5C599.2 312.5 585.8 309.3 574.8 306.3C566.2 304 559.3 302 552.3 299.6C546.2 297.5 540.4 295.5 535.4 292.8C531.1 290.5 527.5 287.9 524.6 284.7C521.9 281.8 519.8 278.1 518.8 274.5C517.9 271.1 518 267.2 519 263.6C520.1 259.7 522.4 255.8 525.2 252.1C528.2 248 532 244.1 536.3 240.3C541 236 546.2 232.3 552.1 227.9C559.2 222.8 567.7 216.9 575.5 211.8C582.8 206.9 589.9 202.4 597.3 197.9C605 193.3 612.5 189 620.7 184.5C629.7 179.5 639.3 174.5 649.2 169.3C659.7 163.7 671.3 157.7 681.9 152.1C691.8 146.8 701.5 141.4 710.6 136.8C718.5 132.7 725 129.8 733.1 126.1C742.2 121.9 752.8 117.6 762.4 113.3C771.8 109.1 780.4 105.1 790.1 100.6C800.7 95.6 813 89.7 823.3 85C832.1 81 839.6 77.9 847.4 74.5"/>
     <path id="m1" d="M1.8 1268.3C8.4 1273.3 15.5 1278.5 22.2 1283.6C28.9 1288.7 35.4 1293.8 42 1299C48.5 1304.1 55 1309.4 61.4 1314.7C67.9 1320 74.2 1325.3 80.6 1330.8C87 1336.3 93.5 1341.9 99.8 1347.5C106.1 1353.1 112.3 1358.6 118.4 1364.3C124.7 1370 130.9 1375.9 137.1 1381.8C143.1 1387.6 149.1 1393.3 155 1399.2C161.1 1405.2 167.1 1411.3 173 1417.4C179 1423.5 184.9 1429.6 190.7 1435.8C196.5 1442 202.3 1448.3 208.1 1454.6C213.8 1460.9 219.5 1467.3 225.1 1473.7C230.7 1480.1 236.3 1486.5 241.8 1493C247.3 1499.6 252.7 1506.1 258.1 1512.7C263.5 1519.3 268.8 1526 274.1 1532.7C279.4 1539.4 284.6 1546.1 289.8 1552.9C295 1559.8 300.2 1566.8 305.3 1573.8C310.4 1580.7 315.3 1587.6 320.3 1594.6C325.3 1601.6 330.2 1608.8 335.1 1616C339.9 1623 344.6 1630.1 349.3 1637.2C354.1 1644.4 358.8 1651.8 363.4 1659.1C368 1666.4 372.6 1673.8 377.1 1681.2C381.6 1688.6 386.1 1696.1 390.4 1703.6C394.7 1711 398.9 1718.3 403.1 1725.7C407.3 1733.2 411.5 1740.9 415.7 1748.5C419.8 1756.1 423.8 1763.8 427.8 1771.4C431.8 1779.1 435.7 1786.8 439.5 1794.6C443.3 1802.3 447.1 1810.1 450.8 1817.9C454.5 1825.6 458.1 1833.5 461.5 1840.9"/>
-    <linearGradient id="fm" gradientUnits="userSpaceOnUse" x1="0" y1="430" x2="430" y2="0" spreadMethod="repeat">
-      <stop offset="0" stop-color="#4E8F79" stop-opacity="0"/>
-      <stop offset=".18" stop-color="#4E8F79" stop-opacity="0"/>
-      <stop offset=".30" stop-color="#5EA98D" stop-opacity=".3"/>
-      <stop offset=".42" stop-color="#8FE0BE" stop-opacity=".72"/>
-      <stop offset=".5" stop-color="#B4F2D8" stop-opacity="1"/>
-      <stop offset=".58" stop-color="#8FE0BE" stop-opacity=".72"/>
-      <stop offset=".70" stop-color="#5EA98D" stop-opacity=".3"/>
-      <stop offset=".82" stop-color="#4E8F79" stop-opacity="0"/>
-      <stop offset="1" stop-color="#4E8F79" stop-opacity="0"/>
-      <animateTransform attributeName="gradientTransform" type="translate" from="0 0" to="430 -430" dur="6s" repeatCount="indefinite"/>
-    </linearGradient>
   </defs>
   <use class="haze" href="#m0"/>
   <use class="haze" href="#m1"/>
@@ -386,10 +380,19 @@
   <use class="soft" href="#m1"/>
   <use class="base" href="#m0"/>
   <use class="base" href="#m1"/>
-  <use class="flowWide" href="#m0"/>
-  <use class="flowWide" href="#m1"/>
-  <use class="flow" href="#m0"/>
-  <use class="flow" href="#m1"/>
+
+  <use class="c1" href="#m0"/>
+  <use class="c1" href="#m1"/>
+  <use class="c2" href="#m0"/>
+  <use class="c2" href="#m1"/>
+  <use class="c3" href="#m0"/>
+  <use class="c3" href="#m1"/>
+  <use class="c4" href="#m0"/>
+  <use class="c4" href="#m1"/>
+  <use class="c5" href="#m0"/>
+  <use class="c5" href="#m1"/>
+  <use class="c6" href="#m0"/>
+  <use class="c6" href="#m1"/>
 </svg>
 
 <div class="vignette"></div>
@@ -424,6 +427,8 @@
     </a>
   </div>
 </main>
+
+<div class="build" aria-hidden="true">build C7</div>
 
 <div class="scrim" id="scrim" role="dialog" aria-modal="true" aria-labelledby="modal-title">
   <div class="modal">

@@ -3,7 +3,9 @@
   "name": "sizeup",
   "compatibility_date": "2026-08-01",
   "assets": {
-    "directory": "./docs"
+    "directory": "./docs",
+    // any path serves the page, so a never-visited URL can bypass a stuck cache
+    "not_found_handling": "single-page-application"
   },
   // Cloudflare creates the DNS records and issues the TLS certificate for these
   // itself on deploy — there is nothing to add by hand in the DNS tab.
