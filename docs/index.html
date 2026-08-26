@@ -6,6 +6,9 @@
 <title>sizeup</title>
 <meta name="description" content="sizeup — opening soon. Join the list to be emailed the moment it opens.">
 <meta name="theme-color" content="#000000">
+<meta name="color-scheme" content="dark">
+<link rel="preconnect" href="https://formspree.io" crossorigin>
+<link rel="dns-prefetch" href="https://formspree.io">
 <meta property="og:title" content="sizeup">
 <meta property="og:description" content="Opening soon.">
 <meta property="og:type" content="website">
@@ -39,7 +42,8 @@
     font-family:ui-monospace,"SF Mono",Menlo,monospace;
     min-height:100svh;
     display:flex;
-    overflow:hidden;
+    overflow-x:hidden;
+    overflow-y:auto;
     position:relative;
   }
 
@@ -152,6 +156,7 @@
   form button{
     flex:0 0 auto;width:56px;display:grid;place-items:center;
     background:var(--mint);border:1px solid var(--mint);
+    color:var(--void);
     border-radius:0 3px 3px 0;cursor:pointer;
     box-shadow:0 0 22px rgba(143,230,206,.28);
     transition:box-shadow .35s ease,transform .15s ease,opacity .2s ease;
@@ -275,6 +280,16 @@
     .c1{bottom:auto;right:auto}.c2{bottom:auto;left:auto}
     .c3{top:auto;right:auto}.c4{top:auto;left:auto}
   }
+  /* Short viewports (landscape phones, in-app webviews): same composition,
+     scaled to fit so the signup form is never below the fold. */
+  @media (orientation:landscape) and (max-height:620px){
+    main{padding:16px 0}
+    .mark{width:min(46vh,340px)}
+    .stem{height:5vh;margin-top:2.4vh}
+    form,.listed{margin-top:2.6vh}
+    .links{margin-top:2.4vh}
+  }
+
   @media (prefers-reduced-motion:reduce){
     *{animation:none!important;transition:none!important}
     .filaments{opacity:.5}.halo{opacity:1}.corner{opacity:1}
