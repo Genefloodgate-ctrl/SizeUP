@@ -28,7 +28,9 @@
     --void:#000000;
     --mint:#8FE6CE;
     --mint-deep:#3E6E5F;
-    --glare:#E8FFF7;
+    --line:#26493D;
+    --line-2:#356052;
+    --line-hot:#4E8F79;
     --white:#FFFFFF;
     --dim:#5A6B65;
     --ease:cubic-bezier(.19,1,.22,1);
@@ -76,25 +78,24 @@
     z-index:0;pointer-events:none;
     opacity:0;animation:bg-in 2.2s var(--ease) .35s forwards;
   }
-  .bg use{fill:none;vector-effect:non-scaling-stroke;stroke-linecap:round}
+  .bg use{fill:none;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round}
 
-  /* The dim continuous line the light travels along. */
-  .bg .base{stroke:var(--mint-deep);stroke-width:1;opacity:.5}
+  /* Two wide, very faint static strokes give the line body and a shadowy
+     falloff without a blur filter, so they rasterise once and never repaint. */
+  .bg .haze{stroke:var(--line);stroke-width:16;opacity:.05}
+  .bg .soft{stroke:var(--line);stroke-width:7;opacity:.06}
+  .bg .base{stroke:var(--line);stroke-width:1;opacity:.2}
 
-  /* The light is three concentric dashes sharing one 500-unit period, so they
-     stay locked together: a long dim wake, a brighter body, and a white-hot
-     head. Stacking them tapers the trailing edge, which is what stops the bar
-     popping on and off at the ends of its run. Only the head carries the
-     expensive bloom; the wake and body are unfiltered strokes. */
+  /* The travelling light, in the same darker greens so it reads as the line
+     brightening rather than a separate white element passing over it. */
   .bg .tail,.bg .mid,.bg .head{animation:run 4.1s linear infinite}
-  .bg .tail{stroke:var(--mint-deep);stroke-width:1.6;opacity:.6;stroke-dasharray:380 120}
-  .bg .mid {stroke:var(--mint);stroke-width:1.9;opacity:.6;stroke-dasharray:235 265}
+  .bg .tail{stroke:var(--line);stroke-width:6;opacity:.1;stroke-dasharray:380 120}
+  .bg .mid {stroke:var(--line-2);stroke-width:3;opacity:.16;stroke-dasharray:235 265}
   .bg .head{
-    stroke:var(--glare);stroke-width:2.4;
+    stroke:var(--line-hot);stroke-width:1.8;opacity:.5;
     stroke-dasharray:95 405;
-    filter:drop-shadow(0 0 4px var(--mint))
-           drop-shadow(0 0 14px rgba(143,230,206,.75))
-           drop-shadow(0 0 40px rgba(143,230,206,.35));
+    filter:drop-shadow(0 0 5px rgba(78,143,121,.5))
+           drop-shadow(0 0 16px rgba(62,110,95,.35));
   }
   @keyframes run{from{stroke-dashoffset:500}to{stroke-dashoffset:0}}
   @keyframes bg-in{to{opacity:1}}
@@ -332,6 +333,10 @@
     <path id="d0" pathLength="1000" d="M903 939C914.8 925.3 950 883.7 974 857C998 830.3 1019.5 807.2 1047 779C1074.5 750.8 1122.5 705 1139 688C1155.5 671 1132.7 689.7 1146 677C1159.3 664.3 1176 646 1219 612C1262 578 1341 517 1404 473C1467 429 1562.5 370.7 1597 348C1631.5 325.3 1605.5 342.5 1611 337C1616.5 331.5 1626.7 321.2 1630 315C1633.3 308.8 1633 304.7 1631 300C1629 295.3 1624.7 291 1618 287C1611.3 283 1602.3 279.5 1591 276C1579.7 272.5 1565.8 269 1550 266C1534.2 263 1517 260.2 1496 258C1475 255.8 1469.5 253.8 1424 253C1378.5 252.2 1259.8 253.8 1223 253C1186.2 252.2 1207 249.5 1203 248C1199 246.5 1199.2 246.3 1199 244C1198.8 241.7 1199.5 237.5 1202 234C1204.5 230.5 1207.7 227.5 1214 223C1220.3 218.5 1220.2 216.7 1240 207C1259.8 197.3 1300.3 178.5 1333 165C1365.7 151.5 1398.2 139.3 1436 126C1473.8 112.7 1538.7 92.8 1560 85C1581.3 77.2 1562.2 79.8 1564 79C1565.8 78.2 1568.5 80.5 1571 80C1573.5 79.5 1575.3 76.3 1579 76C1582.7 75.7 1590.8 78.2 1593 78C1595.2 77.8 1592.7 75.3 1592 75C1591.3 74.7 1589.5 75.8 1589 76"/>
     <path id="d1" pathLength="1000" d="M322 939C312 926.8 277.7 883.7 262 866C246.3 848.3 241.5 845 228 833C214.5 821 196.7 806 181 794C165.3 782 149.2 770.8 134 761C118.8 751.2 112.3 746.2 90 735C67.7 723.8 15 700.8 0 694"/>
   </defs>
+  <use class="haze" href="#d0"/>
+  <use class="haze" href="#d1"/>
+  <use class="soft" href="#d0"/>
+  <use class="soft" href="#d1"/>
   <use class="base" href="#d0"/>
   <use class="base" href="#d1"/>
   <use class="tail" href="#d0" style="animation-delay:-0.0s"/>
@@ -346,6 +351,10 @@
     <path id="m0" pathLength="1000" d="M852 408C842 402.3 811.8 383.7 792 374C772.2 364.3 753.5 357.3 733 350C712.5 342.7 700 338.7 669 330C638 321.3 570.7 305 547 298C523.3 291 532.2 292 527 288C521.8 284 517.7 277.8 516 274C514.3 270.2 515.7 268.5 517 265C518.3 261.5 519.2 258.5 524 253C528.8 247.5 535.8 240 546 232C556.2 224 558.8 220 585 205C611.2 190 680.8 154.5 703 142C725.2 129.5 713.5 132.2 718 130C722.5 127.8 707.8 138.5 730 129C752.2 119.5 830.8 82.3 851 73"/>
     <path id="m1" pathLength="1000" d="M0 1265C10 1273 49.3 1303.8 60 1313C70.7 1322.2 60.7 1317.2 64 1320C67.3 1322.8 68.2 1320.2 80 1330C91.8 1339.8 114.5 1359.3 135 1379C155.5 1398.7 181.8 1425 203 1448C224.2 1471 242.8 1493.2 262 1517C281.2 1540.8 299.2 1564.3 318 1591C336.8 1617.7 357.8 1649.3 375 1677C392.2 1704.7 406.3 1729.3 421 1757C435.7 1784.7 456 1828.7 463 1843"/>
   </defs>
+  <use class="haze" href="#m0"/>
+  <use class="haze" href="#m1"/>
+  <use class="soft" href="#m0"/>
+  <use class="soft" href="#m1"/>
   <use class="base" href="#m0"/>
   <use class="base" href="#m1"/>
   <use class="tail" href="#m0" style="animation-delay:-0.0s"/>
