@@ -66,39 +66,32 @@
   @keyframes breathe{0%,100%{opacity:1}50%{opacity:.72}}
 
   /* ---------- neon backdrop ---------- */
-  /* The brand mark traced to one vector contour (843 chars) instead of a
-     bitmap: scales to any viewport for a fraction of a kilobyte. The static
-     stroke and its bloom rasterise once; only opacity animates, which the
-     compositor handles, so this replaces two repainting filament paths with
-     one that never repaints. */
-  .ghost{
-    position:fixed;z-index:0;pointer-events:none;
-    right:-28vw;bottom:-54vh;
-    width:min(1280px,100vw);
-    transform:rotate(48deg);
-    opacity:0;
-    animation:ghost-in 2.2s var(--ease) .4s forwards;
+  /* The supplied artwork, traced to vector centrelines: ~2KB of path data
+     instead of a 3MB pair of PNGs, and sharp at any density. Each curve is
+     drawn twice - a dim continuous base, and a bright segment that runs along
+     it. Only stroke-dashoffset animates, on two thin paths. */
+  .bg{
+    position:fixed;inset:0;width:100%;height:100%;
+    z-index:0;pointer-events:none;
+    opacity:0;animation:bg-in 2.2s var(--ease) .35s forwards;
   }
-  .ghost path{fill:none;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round}
-  .ghost .edge{
-    stroke:var(--mint-deep);stroke-width:1.1;opacity:.55;
-  }
-  /* The neon core. Only its opacity animates, which the compositor handles on
-     the GPU: the stroke and its bloom rasterise once and are never repainted. */
-  .ghost .lit{
+  .bg path{fill:none;vector-effect:non-scaling-stroke;stroke-linecap:round}
+  .bg .base{stroke:var(--mint-deep);stroke-width:1;opacity:.5}
+  .bg .run{
     stroke:var(--mint);stroke-width:1.5;
-    opacity:.34;
-    filter:drop-shadow(0 0 6px rgba(143,230,206,.9))
-           drop-shadow(0 0 20px rgba(143,230,206,.5))
-           drop-shadow(0 0 52px rgba(143,230,206,.22));
-    animation:pulse 9s ease-in-out 2.4s infinite;
-    will-change:opacity;
+    stroke-dasharray:132 368;
+    filter:drop-shadow(0 0 5px rgba(143,230,206,.95))
+           drop-shadow(0 0 16px rgba(143,230,206,.55))
+           drop-shadow(0 0 46px rgba(143,230,206,.25));
+    animation:run 7.5s linear infinite;
   }
-  @keyframes pulse{0%,100%{opacity:.34}50%{opacity:.72}}
-  @keyframes ghost-in{to{opacity:1}}
+  @keyframes run{from{stroke-dashoffset:500}to{stroke-dashoffset:0}}
+  @keyframes bg-in{to{opacity:1}}
 
+  .bg-m{display:none}
   @media (max-width:760px){
-    .ghost{right:-46vw;bottom:-30vh;width:172vw;transform:rotate(44deg)}
+    .bg-d{display:none}
+    .bg-m{display:block}
   }
 
   .vignette{
@@ -309,12 +302,11 @@
     .stem{height:5vh;margin-top:2.4vh}
     form,.listed{margin-top:2.6vh}
     .links{margin-top:2.4vh}
-    .ghost{right:-40vw;bottom:-95vh;width:min(1250px,124vw);transform:rotate(52deg)}
   }
 
   @media (prefers-reduced-motion:reduce){
     *{animation:none!important;transition:none!important}
-    .halo{opacity:1}.corner{opacity:1}.ghost{opacity:1}.ghost .lit{opacity:.5}
+    .halo{opacity:1}.corner{opacity:1}.bg{opacity:1}
     .ring svg{stroke-dashoffset:0}
     .scrim.open .modal{transform:none}
   }
@@ -324,9 +316,17 @@
 
 <div class="halo"></div>
 
-<svg class="ghost" viewBox="0 0 969 743" aria-hidden="true" focusable="false">
-  <path class="edge" pathLength="1000" d="M30.9 709.6C161.3 560 312.1 460.4 442.7 437.6C533.1 421.8 605.3 451.5 583.6 495.5C574.9 513 553.6 529.2 507.1 553.6C497.8 558.5 490.3 562.6 490.4 562.7C490.5 562.9 498.6 561.2 508.3 559C688.6 518.1 814.5 563.3 944 715.5C949.6 722.1 954.7 728 955.3 728.5C962.5 735.5 909.3 646.6 882.5 606.9C801.4 487.1 714.6 411.4 612.7 371.5C558.6 350.4 520.7 343.3 441.4 339.5C390 337.1 376.5 334.3 370.2 325C356.3 304.3 409.8 267.4 468 257.6C532.9 246.7 582.7 259.3 655 305C678.6 319.9 702 334 703.2 334C704.1 334 693.5 318.1 665.5 277.5C657.1 265.4 622.4 215 588.3 165.5C554.2 116 520.3 67 513.1 56.5C505.8 46 495.9 31.8 491.2 24.8C486.4 17.8 482.3 12 482 12C481.7 12 469.8 29.7 455.6 51.3C424.4 98.4 397.7 138.5 343.9 219C321.7 252.3 292.6 296 279.3 316.2C266 336.3 237.8 378.8 216.7 410.7C112.9 567.1 -2.3 748.6 16.2 726.6C18 724.4 24.6 716.7 30.9 709.6Z"/>
-  <path class="lit" pathLength="1000" d="M30.9 709.6C161.3 560 312.1 460.4 442.7 437.6C533.1 421.8 605.3 451.5 583.6 495.5C574.9 513 553.6 529.2 507.1 553.6C497.8 558.5 490.3 562.6 490.4 562.7C490.5 562.9 498.6 561.2 508.3 559C688.6 518.1 814.5 563.3 944 715.5C949.6 722.1 954.7 728 955.3 728.5C962.5 735.5 909.3 646.6 882.5 606.9C801.4 487.1 714.6 411.4 612.7 371.5C558.6 350.4 520.7 343.3 441.4 339.5C390 337.1 376.5 334.3 370.2 325C356.3 304.3 409.8 267.4 468 257.6C532.9 246.7 582.7 259.3 655 305C678.6 319.9 702 334 703.2 334C704.1 334 693.5 318.1 665.5 277.5C657.1 265.4 622.4 215 588.3 165.5C554.2 116 520.3 67 513.1 56.5C505.8 46 495.9 31.8 491.2 24.8C486.4 17.8 482.3 12 482 12C481.7 12 469.8 29.7 455.6 51.3C424.4 98.4 397.7 138.5 343.9 219C321.7 252.3 292.6 296 279.3 316.2C266 336.3 237.8 378.8 216.7 410.7C112.9 567.1 -2.3 748.6 16.2 726.6C18 724.4 24.6 716.7 30.9 709.6Z"/>
+<svg class="bg bg-d" viewBox="0 0 1672 941" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+  <path class="base" pathLength="1000" d="M903 939C914.8 925.3 950 883.7 974 857C998 830.3 1019.5 807.2 1047 779C1074.5 750.8 1122.5 705 1139 688C1155.5 671 1132.7 689.7 1146 677C1159.3 664.3 1176 646 1219 612C1262 578 1341 517 1404 473C1467 429 1562.5 370.7 1597 348C1631.5 325.3 1605.5 342.5 1611 337C1616.5 331.5 1626.7 321.2 1630 315C1633.3 308.8 1633 304.7 1631 300C1629 295.3 1624.7 291 1618 287C1611.3 283 1602.3 279.5 1591 276C1579.7 272.5 1565.8 269 1550 266C1534.2 263 1517 260.2 1496 258C1475 255.8 1469.5 253.8 1424 253C1378.5 252.2 1259.8 253.8 1223 253C1186.2 252.2 1207 249.5 1203 248C1199 246.5 1199.2 246.3 1199 244C1198.8 241.7 1199.5 237.5 1202 234C1204.5 230.5 1207.7 227.5 1214 223C1220.3 218.5 1220.2 216.7 1240 207C1259.8 197.3 1300.3 178.5 1333 165C1365.7 151.5 1398.2 139.3 1436 126C1473.8 112.7 1538.7 92.8 1560 85C1581.3 77.2 1562.2 79.8 1564 79C1565.8 78.2 1568.5 80.5 1571 80C1573.5 79.5 1575.3 76.3 1579 76C1582.7 75.7 1590.8 78.2 1593 78C1595.2 77.8 1592.7 75.3 1592 75C1591.3 74.7 1589.5 75.8 1589 76"/>
+  <path class="base" pathLength="1000" d="M322 939C312 926.8 277.7 883.7 262 866C246.3 848.3 241.5 845 228 833C214.5 821 196.7 806 181 794C165.3 782 149.2 770.8 134 761C118.8 751.2 112.3 746.2 90 735C67.7 723.8 15 700.8 0 694"/>
+  <path class="run" pathLength="1000" style="animation-delay:-0.0s" d="M903 939C914.8 925.3 950 883.7 974 857C998 830.3 1019.5 807.2 1047 779C1074.5 750.8 1122.5 705 1139 688C1155.5 671 1132.7 689.7 1146 677C1159.3 664.3 1176 646 1219 612C1262 578 1341 517 1404 473C1467 429 1562.5 370.7 1597 348C1631.5 325.3 1605.5 342.5 1611 337C1616.5 331.5 1626.7 321.2 1630 315C1633.3 308.8 1633 304.7 1631 300C1629 295.3 1624.7 291 1618 287C1611.3 283 1602.3 279.5 1591 276C1579.7 272.5 1565.8 269 1550 266C1534.2 263 1517 260.2 1496 258C1475 255.8 1469.5 253.8 1424 253C1378.5 252.2 1259.8 253.8 1223 253C1186.2 252.2 1207 249.5 1203 248C1199 246.5 1199.2 246.3 1199 244C1198.8 241.7 1199.5 237.5 1202 234C1204.5 230.5 1207.7 227.5 1214 223C1220.3 218.5 1220.2 216.7 1240 207C1259.8 197.3 1300.3 178.5 1333 165C1365.7 151.5 1398.2 139.3 1436 126C1473.8 112.7 1538.7 92.8 1560 85C1581.3 77.2 1562.2 79.8 1564 79C1565.8 78.2 1568.5 80.5 1571 80C1573.5 79.5 1575.3 76.3 1579 76C1582.7 75.7 1590.8 78.2 1593 78C1595.2 77.8 1592.7 75.3 1592 75C1591.3 74.7 1589.5 75.8 1589 76"/>
+  <path class="run" pathLength="1000" style="animation-delay:-3.1s" d="M322 939C312 926.8 277.7 883.7 262 866C246.3 848.3 241.5 845 228 833C214.5 821 196.7 806 181 794C165.3 782 149.2 770.8 134 761C118.8 751.2 112.3 746.2 90 735C67.7 723.8 15 700.8 0 694"/>
+</svg>
+<svg class="bg bg-m" viewBox="0 0 853 1844" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+  <path class="base" pathLength="1000" d="M852 408C842 402.3 811.8 383.7 792 374C772.2 364.3 753.5 357.3 733 350C712.5 342.7 700 338.7 669 330C638 321.3 570.7 305 547 298C523.3 291 532.2 292 527 288C521.8 284 517.7 277.8 516 274C514.3 270.2 515.7 268.5 517 265C518.3 261.5 519.2 258.5 524 253C528.8 247.5 535.8 240 546 232C556.2 224 558.8 220 585 205C611.2 190 680.8 154.5 703 142C725.2 129.5 713.5 132.2 718 130C722.5 127.8 707.8 138.5 730 129C752.2 119.5 830.8 82.3 851 73"/>
+  <path class="base" pathLength="1000" d="M0 1265C10 1273 49.3 1303.8 60 1313C70.7 1322.2 60.7 1317.2 64 1320C67.3 1322.8 68.2 1320.2 80 1330C91.8 1339.8 114.5 1359.3 135 1379C155.5 1398.7 181.8 1425 203 1448C224.2 1471 242.8 1493.2 262 1517C281.2 1540.8 299.2 1564.3 318 1591C336.8 1617.7 357.8 1649.3 375 1677C392.2 1704.7 406.3 1729.3 421 1757C435.7 1784.7 456 1828.7 463 1843"/>
+  <path class="run" pathLength="1000" style="animation-delay:-0.0s" d="M852 408C842 402.3 811.8 383.7 792 374C772.2 364.3 753.5 357.3 733 350C712.5 342.7 700 338.7 669 330C638 321.3 570.7 305 547 298C523.3 291 532.2 292 527 288C521.8 284 517.7 277.8 516 274C514.3 270.2 515.7 268.5 517 265C518.3 261.5 519.2 258.5 524 253C528.8 247.5 535.8 240 546 232C556.2 224 558.8 220 585 205C611.2 190 680.8 154.5 703 142C725.2 129.5 713.5 132.2 718 130C722.5 127.8 707.8 138.5 730 129C752.2 119.5 830.8 82.3 851 73"/>
+  <path class="run" pathLength="1000" style="animation-delay:-3.1s" d="M0 1265C10 1273 49.3 1303.8 60 1313C70.7 1322.2 60.7 1317.2 64 1320C67.3 1322.8 68.2 1320.2 80 1330C91.8 1339.8 114.5 1359.3 135 1379C155.5 1398.7 181.8 1425 203 1448C224.2 1471 242.8 1493.2 262 1517C281.2 1540.8 299.2 1564.3 318 1591C336.8 1617.7 357.8 1649.3 375 1677C392.2 1704.7 406.3 1729.3 421 1757C435.7 1784.7 456 1828.7 463 1843"/>
 </svg>
 
 <div class="vignette"></div>
