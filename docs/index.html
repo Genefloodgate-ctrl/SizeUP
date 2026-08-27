@@ -69,13 +69,6 @@
   @keyframes halo-in{to{opacity:1}}
   @keyframes breathe{0%,100%{opacity:1}50%{opacity:.72}}
 
-  .build{
-    position:fixed;left:50%;bottom:10px;transform:translateX(-50%);
-    z-index:9;pointer-events:none;
-    font-size:9px;letter-spacing:.24em;text-transform:uppercase;
-    color:var(--dim);opacity:.55;
-  }
-
   /* Pinch-zoom re-rasterises every layer at the zoomed scale, which is what
      exhausts GPU memory on a phone. While zoomed we drop the costly ones: the
      grain (an SVG turbulence filter, re-rendered at the new scale) and the
@@ -437,8 +430,6 @@
     </a>
   </div>
 </main>
-
-<div class="build" aria-hidden="true">build C8</div>
 
 <div class="scrim" id="scrim" role="dialog" aria-modal="true" aria-labelledby="modal-title">
   <div class="modal">
