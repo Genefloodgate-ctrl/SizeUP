@@ -77,6 +77,7 @@
   .zoomed .bg .c1,.zoomed .bg .c2,.zoomed .bg .c3,
   .zoomed .bg .c4,.zoomed .bg .c5,.zoomed .bg .c6{animation:none}
   .zoomed .mark{animation:none}
+  .zoomed .modal,.zoomed .scrim{-webkit-backdrop-filter:none;backdrop-filter:none}
 
   /* ---------- neon backdrop ---------- */
   /* The supplied artwork, traced to vector centrelines: ~2KB of path data
@@ -268,32 +269,74 @@
   .scrim{
     position:fixed;inset:0;z-index:20;
     display:grid;place-items:center;
-    background:rgba(0,0,0,.72);
-    backdrop-filter:blur(5px);
+    background:rgba(0,0,0,.55);
+    -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
     opacity:0;visibility:hidden;
-    transition:opacity .4s ease,visibility .4s;
+    transition:opacity .45s ease,visibility .45s;
   }
   .scrim.open{opacity:1;visibility:visible}
 
+  /* Glass material: the panel refracts what is behind it rather than sitting on
+     top of it. Three parts - a blurred, saturated backdrop; a soft sheen from
+     the top-left; and a rim that is bright where light would catch it and fades
+     around the curve. The large radius is what keeps it reading as a physical
+     pane rather than a dialog box. */
   .modal{
     position:relative;
     width:min(400px,86vw);
-    padding:44px 34px 36px;
+    padding:46px 34px 40px;
     text-align:center;
-    background:linear-gradient(180deg,rgba(143,230,206,.07),rgba(0,0,0,.6));
-    border:1px solid rgba(143,230,206,.28);
-    border-radius:6px;
-    box-shadow:0 0 70px rgba(143,230,206,.16),inset 0 0 50px rgba(143,230,206,.05);
-    transform:translateY(18px) scale(.96);
-    transition:transform .55s var(--ease);
+    border-radius:30px;
+    background:
+      linear-gradient(158deg,
+        rgba(255,255,255,.10) 0%,
+        rgba(255,255,255,.03) 38%,
+        rgba(143,230,206,.055) 100%);
+    -webkit-backdrop-filter:blur(26px) saturate(165%);
+    backdrop-filter:blur(26px) saturate(165%);
+    border:1px solid rgba(255,255,255,.10);
+    box-shadow:
+      0 28px 70px rgba(0,0,0,.55),
+      0 0 70px rgba(143,230,206,.10),
+      inset 0 1px 0 rgba(255,255,255,.28),
+      inset 0 -1px 0 rgba(255,255,255,.05);
+    transform:translateY(22px) scale(.94);
+    transition:transform .6s cubic-bezier(.16,1.02,.24,1), opacity .45s ease;
+    opacity:.4;
   }
-  .scrim.open .modal{transform:none}
+  .scrim.open .modal{transform:none;opacity:1}
+
+  /* specular sheen, brightest where the light comes from */
+  .modal::before{
+    content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+    background:
+      radial-gradient(130% 80% at 18% -10%, rgba(255,255,255,.18), transparent 58%),
+      radial-gradient(90% 60% at 85% 110%, rgba(143,230,206,.10), transparent 60%);
+  }
+  /* rim light: a gradient border drawn with a mask so it can vary around the edge */
+  .modal::after{
+    content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;
+    background:linear-gradient(150deg,
+      rgba(255,255,255,.55) 0%,
+      rgba(255,255,255,.06) 34%,
+      rgba(143,230,206,.10) 62%,
+      rgba(143,230,206,.34) 100%);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;
+            mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+            mask-composite:exclude;
+  }
 
   .ring{
-    width:62px;height:62px;margin:0 auto;
+    position:relative;
+    width:64px;height:64px;margin:0 auto;
     display:grid;place-items:center;
-    border:1px solid rgba(143,230,206,.5);border-radius:50%;
-    box-shadow:0 0 40px rgba(143,230,206,.3),inset 0 0 22px rgba(143,230,206,.12);
+    border:1px solid rgba(255,255,255,.16);border-radius:50%;
+    background:linear-gradient(160deg,rgba(255,255,255,.12),rgba(143,230,206,.05));
+    box-shadow:
+      0 0 40px rgba(143,230,206,.28),
+      inset 0 1px 0 rgba(255,255,255,.32),
+      inset 0 0 22px rgba(143,230,206,.10);
   }
   .ring svg{width:24px;height:24px;stroke:var(--mint);stroke-width:1.8;fill:none;
     stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:30;stroke-dashoffset:30}
@@ -301,8 +344,8 @@
   @keyframes draw{to{stroke-dashoffset:0}}
 
   .modal h2{
-    margin:26px 0 0;
-    font-size:13px;letter-spacing:.26em;text-transform:uppercase;font-weight:400;
+    margin:28px 0 0;
+    font-size:13px;letter-spacing:.24em;text-transform:uppercase;font-weight:400;
     color:var(--white);
   }
   .modal p{
@@ -418,7 +461,7 @@
 
   <div class="listed" id="listed">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5l5.5 5.5L20 7"/></svg>
-    <span>on the list</span>
+    <span>in the alpha</span>
   </div>
 
   <div class="links">
@@ -439,7 +482,7 @@
     <div class="ring">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5l5.5 5.5L20 7"/></svg>
     </div>
-    <h2 id="modal-title">You're on the list</h2>
+    <h2 id="modal-title">You&rsquo;ve joined the alpha</h2>
     <p><span class="addr" id="confirm-addr"></span><br>We'll email you the moment sizeup opens.</p>
   </div>
 </div>
